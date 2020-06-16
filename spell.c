@@ -106,12 +106,12 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
         {
             line[string_length-1] = 0;
         }
-        // Set a new node
+	// Set a new node
         node* new_node = malloc(sizeof(struct node));
         // Set node->next to NULL
         new_node->next = NULL;
         // Set node->word to word
-        strncpy(new_node->word, line, strlen(line));
+        strncpy(new_node->word, line, LENGTH);
         // Determine hashtable bucket of specific word
         int bucket = hash_function(line);
         // Check if hashtable's bucket has been created
