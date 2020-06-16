@@ -9,16 +9,24 @@
 #include "dictionary.h"
 #include <string.h>
 #include <ctype.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 /* Returns the lower case version of the word
  */
-void lower_case(char* word)
+char* lower_case(const char* word)
 {
-    for (int i = 0; word[i]; i++) {
-        word[i] = tolower(word[i]);
+    char* lower = strdup(word);
+    char* ptr = lower;
+    
+    if (ptr != NULL)
+    {
+        while (*ptr)
+        {
+            *ptr = tolower(*ptr);
+            ptr++;
+        }
     }
+    return lower;
 }
 
 
@@ -46,15 +54,15 @@ bool check_word(const char* word, hashmap_t hashtable[])
         }
     }
     
+    // Check if lower case word is already in hash table
+    char* lower = lower_case(word);
     // Determine output of hash_function of the word
-    bucket = hash_function(word);
+    bucket = hash_function(lower);
     // Set cursor equal to the respected bucket
     cursor = hashtable[bucket];
-    // Check if lower case word is already in hash table
-    lower_case(word);
     while (cursor != NULL)
     {
-        if (strcmp(word,cursor->word) == 0)
+        if (strcmp(lower,cursor->word) == 0)
         {
             return true;
         }
@@ -89,17 +97,23 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
     {
         return false;
     }
-   // While word in the dictionary file is not at the end of file (last word)
+    // While word in the dictionary file is not at the end of file (last word)
     while ((read = getline(&line, &len, fptr)) != -1)
     {
+        // Get rid of hidden new line characters
+        int string_length = strlen(line);
+        if (line[string_length-1] == '\n')
+        {
+            line[string_length-1] = 0;
+        }
         // Set a new node
         node* new_node = malloc(sizeof(struct node));
         // Set node->next to NULL
         new_node->next = NULL;
         // Set node->word to word
-        strncpy(new_node->word, read, strlen(read));
+        strncpy(new_node->word, line, strlen(line));
         // Determine hashtable bucket of specific word
-        int bucket = hash_function(read);
+        int bucket = hash_function(line);
         // Check if hashtable's bucket has been created
         if (hashtable[bucket] == NULL)
         {
@@ -134,7 +148,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
     while ((read = getline(&line, &len, fp)) != -1)
     {
         // Split line on spaces
-        word = strtok(read, " ");
+        word = strtok(line, " ");
         // For each word, remove punctuation from beg/end and run check_word
         while (word != NULL)
         {
