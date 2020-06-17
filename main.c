@@ -36,18 +36,24 @@ int main(int argc, char* argv[])
     // Open up return file
     FILE* fptr = fopen(file, "r");
     
-    // Load dictionary
-    bool success = load_dictionary(dict, hashtable);
-    if (success)
+    // Check to see if file is valid
+    if (fptr != NULL)
     {
-        num_misspelled = check_words(fptr, hashtable, misspelled);
+        // Load dictionary
+        bool success = load_dictionary(dict, hashtable);
+        if (success)
+        {
+            num_misspelled = check_words(fptr, hashtable, misspelled);
+        }
+    
+        printf("Misspelled words: %d\n", num_misspelled);
+        
+        // Close file
+        fclose(fptr);
+    
+        // Clean
+        clean(hashtable);
     }
     
-    printf("There are %d misspelled words\n", num_misspelled);
-
-    // Close file
-    fclose(fptr);
-    // Clean
-    clean(hashtable);
     return 0;
 }

@@ -100,31 +100,35 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
     // While word in the dictionary file is not at the end of file (last word)
     while (getline(&line, &len, fptr) != -1)
     {
-        // Get rid of hidden new line characters
         int string_length = strlen(line);
-        if (line[string_length-1] == '\n')
+        if (string_length <= LENGTH)
         {
-            line[string_length-1] = 0;
-        }
-	// Set a new node
-        node* new_node = malloc(sizeof(struct node));
-        // Set node->next to NULL
-        new_node->next = NULL;
-        // Set node->word to word
-        strncpy(new_node->word, line, LENGTH);
-        // Determine hashtable bucket of specific word
-        int bucket = hash_function(line);
-        // Check if hashtable's bucket has been created
-        if (hashtable[bucket] == NULL)
-        {
-            // If not created, add node to the linked list
-            hashtable[bucket] = new_node;
-        }
-        else {
-            // If hash table already has bucket, set node's next to the linked list
-            new_node->next = hashtable[bucket];
-            // Add new node to the front of the linked list
-            hashtable[bucket] = new_node;
+            // Get rid of hidden new line characters
+            if (line[string_length-1] == '\n')
+            {
+                line[string_length-1] = 0;
+            }
+            // Set a new node
+            node* new_node = malloc(sizeof(struct node));
+            // Set node->next to NULL
+            new_node->next = NULL;
+            // Set node->word to word
+            strncpy(new_node->word, line, LENGTH);
+            // Determine hashtable bucket of specific word
+            int bucket = hash_function(line);
+            // Check if hashtable's bucket has been created
+            if (hashtable[bucket] == NULL)
+            {
+                // If not created, add node to the linked list
+                hashtable[bucket] = new_node;
+            }
+            else
+            {
+                // If hash table already has bucket, set node's next to the linked list
+                new_node->next = hashtable[bucket];
+                // Add new node to the front of the linked list
+                hashtable[bucket] = new_node;
+            }
         }
     }
     free(line);
@@ -152,22 +156,32 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
         // For each word, remove punctuation from beg/end and run check_word
         while (word != NULL)
         {
-            // Remove punctuation from the beginning
-            while (isalpha(word[0]) == 0)
+            if (strlen(word) <= LENGTH)
             {
-                word++;
-            }
-            // Remove punctuation from the end
-            while (isalpha(word[strlen(word)-1]) == 0)
-            {
-                word[strlen(word)-1] = '\0';
-            }
-	    // Run check_word on each word
-            if (check_word(word, hashtable) == false)
-            {
-                // If misspelled, add word to the misspelled hashtable
-                misspelled[num_misspelled] = word;
-                num_misspelled++;
+                // Remove punctuation from the beginning
+                while (isalpha(word[0]) == 0)
+                {
+                    word++;
+                }
+                // Remove punctuation from the end
+                while (isalpha(word[strlen(word)-1]) == 0)
+                {
+                    word[strlen(word)-1] = '\0';
+                }
+                // Run check_word on each word
+                if (check_word(word, hashtable) == false)
+                {
+                    // If misspelled, add word to the misspelled hashtable
+                    if (num_misspelled + 1 <= MAX_MISSPELLED)
+                    {
+                        misspelled[num_misspelled] = word;
+                        num_misspelled++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
             // Continue onto next word
             word = strtok(NULL, " ");
