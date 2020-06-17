@@ -41,7 +41,7 @@ bool check_word(const char* word, hashmap_t hashtable[])
     bucket = hash_function(word);
     // Set cursor equal to the respected bucket
     cursor = hashtable[bucket];
-    // Check if word is already in the hash table
+   // Check if word is already in the hash table
     while (cursor != NULL)
     {
         if (strcmp(word,cursor->word) == 0)
@@ -64,6 +64,7 @@ bool check_word(const char* word, hashmap_t hashtable[])
     {
         if (strcmp(lower,cursor->word) == 0)
         {
+	    free(lower);
             return true;
         }
         else
@@ -71,7 +72,7 @@ bool check_word(const char* word, hashmap_t hashtable[])
             cursor = cursor->next;
         }
     }
-    
+    free(lower);
     return false;
 }
 
@@ -83,7 +84,6 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
     FILE* fptr;
     char* line = NULL;
     size_t len = 0;
-    ssize_t read;
     
     // Initialize all values in the hashtable to NULL
     for (int i = 0; i < HASH_SIZE; i++)
@@ -98,7 +98,7 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
         return false;
     }
     // While word in the dictionary file is not at the end of file (last word)
-    while ((read = getline(&line, &len, fptr)) != -1)
+    while (getline(&line, &len, fptr) != -1)
     {
         // Get rid of hidden new line characters
         int string_length = strlen(line);
@@ -127,9 +127,10 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
             hashtable[bucket] = new_node;
         }
     }
+    free(line);
     // Close file
     fclose(fptr);
-    
+
     return true;
 }
 
@@ -141,11 +142,10 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
     int num_misspelled = 0;
     char* line = NULL;
     size_t len = 0;
-    ssize_t read;
     char* word;
-    
+
     // While line in the file is not EOF
-    while ((read = getline(&line, &len, fp)) != -1)
+    while (getline(&line, &len, fp) != -1)
     {
         // Split line on spaces
         word = strtok(line, " ");
@@ -162,7 +162,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
             {
                 word[strlen(word)-1] = '\0';
             }
-            // Run check_word on each word
+	    // Run check_word on each word
             if (check_word(word, hashtable) == false)
             {
                 // If misspelled, add word to the misspelled hashtable
@@ -172,8 +172,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
             // Continue onto next word
             word = strtok(NULL, " ");
         }
-        
     }
-    
+    free(line);
     return num_misspelled;
 }

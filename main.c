@@ -8,6 +8,22 @@
 
 #include <stdio.h>
 #include "dictionary.h"
+#include <stdlib.h>
+
+void clean(hashmap_t hashtable[])
+{
+    // Clean hashtable
+    for (int i = 0; i < HASH_SIZE; i++)
+    {
+        node* current = hashtable[i];
+        while (current != NULL)
+        {
+            node* delete_node = current;
+            current = current->next;
+            free(delete_node);
+        }
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +43,11 @@ int main(int argc, char* argv[])
         num_misspelled = check_words(fptr, hashtable, misspelled);
     }
     
-    printf("There are %d misspelled words", num_misspelled);
-    
+    printf("There are %d misspelled words\n", num_misspelled);
+
+    // Close file
+    fclose(fptr);
+    // Clean
+    clean(hashtable);
     return 0;
 }
