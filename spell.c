@@ -113,7 +113,7 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
             // Set node->next to NULL
             new_node->next = NULL;
             // Set node->word to word
-            strncpy(new_node->word, line, LENGTH);
+            strcpy(new_node->word, line);
             // Determine hashtable bucket of specific word
             int bucket = hash_function(line);
             // Check if hashtable's bucket has been created
@@ -195,10 +195,10 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
                 {
                     check = check_word(word, hashtable);
                 }
-                // Run check_word on each word
+                // If word is not in the hashtable
                 if (check == false)
                 {
-                    // If misspelled, add word to the misspelled hashtable
+                    // If misspelled, add word to the misspelled hashtable(account for boundary)
                     if (num_misspelled + 1 <= MAX_MISSPELLED)
                     {
                         misspelled[num_misspelled] = word;

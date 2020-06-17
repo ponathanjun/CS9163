@@ -12,6 +12,27 @@ START_TEST(test_dictionary_normal)
     // Here we can test if certain words ended up in certain buckets
     // to ensure that our load_dictionary works as intended. I leave
     // this as an exercise.
+    char* strings[4];
+    strings[0] = "first";
+    strings[1] = "second";
+    strings[2] = "third";
+    strings[3] = "test";
+    int expected[4];
+    for (int i = 0; i < 4; i++) {
+        expected[i] = hash_function(strings[i]);
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        int bucket = expected[i];
+        ck_assert_msg(strcmp(strings[i], hashtable[bucket]->word) == 0);
+    }
+    // Check if length maximum boundary works
+    char* boundary_string = "pneumonoultramicroscopicsilicovolcanoconiosiss";
+    char* max_string = "pneumonoultramicroscopicsilicovolcanoconiosis";
+    int boundary_bucket = hash_function(boundary_string);
+    int max_bucket = hash_function(max_string);
+    ck_assert(hashtable[boundary_bucket] == NULL);
+    ck_assert_msg(strcmp(max_string, hashtable[boundary_bucket]->word) == 0);
 }
 END_TEST
 
@@ -58,6 +79,7 @@ check_word_suite(void)
     check_word_case = tcase_create("Core");
     tcase_add_test(check_word_case, test_check_word_normal);
     tcase_add_test(check_word_case, test_check_words_normal);
+    tcase_add_test(check_word_case, test_dictionary_normal);
     suite_add_tcase(suite, check_word_case);
 
     return suite;
