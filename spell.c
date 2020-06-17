@@ -64,7 +64,7 @@ bool check_word(const char* word, hashmap_t hashtable[])
     {
         if (strcmp(lower,cursor->word) == 0)
         {
-	    free(lower);
+            free(lower);
             return true;
         }
         else
@@ -147,7 +147,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
     char* line = NULL;
     size_t len = 0;
     char* word;
-
+    
     // While line in the file is not EOF
     while (getline(&line, &len, fp) != -1)
     {
@@ -156,20 +156,47 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
         // For each word, remove punctuation from beg/end and run check_word
         while (word != NULL)
         {
+            // Check boundaries
             if (strlen(word) <= LENGTH)
             {
+                // Account for new line character
+                if (word[strlen(word)-1] == '\n')
+                {
+                    word[strlen(word)-1] = '\0';
+                }
                 // Remove punctuation from the beginning
-                while (isalpha(word[0]) == 0)
+                while (ispunct(word[0]) != 0)
                 {
                     word++;
                 }
                 // Remove punctuation from the end
-                while (isalpha(word[strlen(word)-1]) == 0)
+                while (ispunct(word[strlen(word)-1]) != 0)
                 {
                     word[strlen(word)-1] = '\0';
                 }
+                // Check if the word is all numbers
+                bool all_numbers = true;
+                for (int i = 0; i < strlen(word); i++)
+                {
+                    // If character is not a digit, change flag and break
+                    if (isdigit(word[i]) == 0)
+                    {
+                        all_numbers = false;
+                        break;
+                    }
+                }
+                // If word is all numbers, skip check_word
+                bool check;
+                if (all_numbers == true)
+                {
+                    check = true;
+                }
+                else
+                {
+                    check = check_word(word, hashtable);
+                }
                 // Run check_word on each word
-                if (check_word(word, hashtable) == false)
+                if (check == false)
                 {
                     // If misspelled, add word to the misspelled hashtable
                     if (num_misspelled + 1 <= MAX_MISSPELLED)
