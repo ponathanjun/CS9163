@@ -32,7 +32,7 @@ START_TEST(test_dictionary_normal)
     int boundary_bucket = hash_function(boundary_string);
     int max_bucket = hash_function(max_string);
     ck_assert(hashtable[boundary_bucket] == NULL);
-    ck_assert_msg(strcmp(max_string, hashtable[boundary_bucket]->word) == 0);
+    ck_assert_msg(strcmp(max_string, hashtable[max_bucket]->word) == 0);
 }
 END_TEST
 

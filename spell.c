@@ -101,13 +101,14 @@ bool load_dictionary(const char* dictionary_file, hashmap_t hashtable[])
     while (getline(&line, &len, fptr) != -1)
     {
         int string_length = strlen(line);
+        // Get rid of hidden new line characters
+        if (line[string_length-1] == '\n')
+        {
+            line[string_length-1] = 0;
+        }
+        string_length = strlen(line);
         if (string_length <= LENGTH)
         {
-            // Get rid of hidden new line characters
-            if (line[string_length-1] == '\n')
-            {
-                line[string_length-1] = 0;
-            }
             // Set a new node
             node* new_node = malloc(sizeof(struct node));
             // Set node->next to NULL
