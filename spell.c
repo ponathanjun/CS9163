@@ -29,7 +29,6 @@ char* lower_case(const char* word)
     return lower;
 }
 
-
 /* Returns a boolean indicating if the word was correctly spelled
  */
 bool check_word(const char* word, hashmap_t hashtable[])
@@ -157,24 +156,24 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
         // For each word, remove punctuation from beg/end and run check_word
         while (word != NULL)
         {
+            // Account for new line character
+            if (word[strlen(word)-1] == '\n')
+            {
+                word[strlen(word)-1] = '\0';
+            }
+            // Remove punctuation from the beginning
+            while (ispunct(word[0]) != 0)
+            {
+                word++;
+            }
+            // Remove punctuation from the end
+            while (ispunct(word[strlen(word)-1]) != 0)
+            {
+                word[strlen(word)-1] = '\0';
+            }
             // Check boundaries
             if (strlen(word) <= LENGTH)
             {
-                // Account for new line character
-                if (word[strlen(word)-1] == '\n')
-                {
-                    word[strlen(word)-1] = '\0';
-                }
-                // Remove punctuation from the beginning
-                while (ispunct(word[0]) != 0)
-                {
-                    word++;
-                }
-                // Remove punctuation from the end
-                while (ispunct(word[strlen(word)-1]) != 0)
-                {
-                    word[strlen(word)-1] = '\0';
-                }
                 // Check if the word is all numbers
                 bool all_numbers = true;
                 for (int i = 0; i < strlen(word); i++)

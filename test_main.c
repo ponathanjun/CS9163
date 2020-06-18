@@ -26,7 +26,14 @@ START_TEST(test_dictionary_normal)
         int bucket = expected[i];
         ck_assert_msg(strcmp(strings[i], hashtable[bucket]->word) == 0);
     }
-    // Check if length maximum boundary works
+}
+END_TEST
+
+// Check if length maximum boundary works
+START_TEST(test_dictionary_boundary)
+{
+    hashmap_t hashtable[HASH_SIZE];
+    ck_assert(load_dictionary(TESTDICT, hashtable));
     char* boundary_string = "pneumonoultramicroscopicsilicovolcanoconiosiss";
     char* max_string = "pneumonoultramicroscopicsilicovolcanoconiosis";
     int boundary_bucket = hash_function(boundary_string);
@@ -44,7 +51,22 @@ START_TEST(test_check_word_normal)
     const char* punctuation_word_2 = "pl.ace";
     ck_assert(check_word(correct_word, hashtable));
     ck_assert(!check_word(punctuation_word_2, hashtable));
-    // Test here: What if a word begins and ends with "?
+}
+END_TEST
+
+// Test here: What if a word begins and ends with "? (My program filters out punctuation in check_words, thus, any word with a punctuation here should return false)
+START_TEST(test_check_word_punctuation)
+{
+    hashmap_t hashtable[HASH_SIZE];
+    load_dictionary(DICTIONARY, hashtable);
+    const char* beg_word = "?dog";
+    const char* end_word = "fish?";
+    const char* both_word = "?apple?";
+    const char* correct_word = "apple";
+    ck_assert(!check_word(beg_word, hashtable));
+    ck_assert(!check_word(end_word, hashtable));
+    ck_assert(!check_word(both_word, hashtable));
+    ck_assert(check_word(correct_word, hashtable));
 }
 END_TEST
 
@@ -70,6 +92,31 @@ START_TEST(test_check_words_normal)
 }
 END_TEST
 
+// Check if length maximum boundary works
+START_TEST(test_check_words_punctuation)
+{
+    hashmap_t hashtable[HASH_SIZE];
+    ck_assert(load_dictionary(TESTDICT, hashtable));
+    char *misspelled[MAX_MISSPELLED];
+    FILE *fp = fopen("test2.txt", "r");
+    int num_misspelled = check_words(fp, hashtable, misspelled);
+    ck_assert(num_misspelled == 2);
+    char* expected[2];
+    expected[0] = "and";
+    expected[1] = "thisisafakewordthatimusingtotestsomeofmycases";
+    bool test = strlen(misspelled[0]) == strlen(expected[0]);
+    bool test2 = strlen(misspelled[1]) == strlen(expected[1]);
+    int len1 = strlen(misspelled[0]);
+    int len2 = strlen(expected[0]);
+    ck_assert_msg(test, "%d!=%d", len1, len2);
+    int len3 = strlen(misspelled[0]);
+    int len4 = strlen(expected[0]);
+    ck_assert_msg(test2, "%d!=%d", len3, len4);
+    ck_assert_msg(strcmp(misspelled[0], expected[0]) == 0);
+    ck_assert_msg(strcmp(misspelled[1], expected[1]) == 0);
+}
+END_TEST
+
 Suite *
 check_word_suite(void)
 {
@@ -80,6 +127,8 @@ check_word_suite(void)
     tcase_add_test(check_word_case, test_check_word_normal);
     tcase_add_test(check_word_case, test_check_words_normal);
     tcase_add_test(check_word_case, test_dictionary_normal);
+    tcase_add_test(check_word_case, test_dictionary_boundary);
+    tcase_add_test(check_word_case, test_check_word_punctuation);
     suite_add_tcase(suite, check_word_case);
 
     return suite;
