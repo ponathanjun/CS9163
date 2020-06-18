@@ -93,7 +93,7 @@ START_TEST(test_check_words_normal)
 END_TEST
 
 // Check if length maximum boundary works
-START_TEST(test_check_words_punctuation)
+START_TEST(test_check_words_boundary)
 {
     hashmap_t hashtable[HASH_SIZE];
     ck_assert(load_dictionary(TESTDICT, hashtable));
@@ -117,6 +117,55 @@ START_TEST(test_check_words_punctuation)
 }
 END_TEST
 
+// Check number and punctuation cases
+START_TEST(test_check_words_weird)
+{
+    hashmap_t hashtable[HASH_SIZE];
+    ck_assert(load_dictionary(TESTDICT, hashtable));
+    char *misspelled[MAX_MISSPELLED];
+    FILE *fp = fopen("test3.txt", "r");
+    int num_misspelled = check_words(fp, hashtable, misspelled);
+    ck_assert(num_misspelled == 6);
+    char* expected[6];
+    expected[0] = "32dog";
+    expected[1] = "fish32";
+    expected[2] = "54cat54";
+    expected[3] = "50baseball";
+    expected[4] = "football50";
+    expected[5] = "50basketball50";
+    bool test = strlen(misspelled[0]) == strlen(expected[0]);
+    bool test2 = strlen(misspelled[1]) == strlen(expected[1]);
+    bool test3 = strlen(misspelled[2]) == strlen(expected[2]);
+    bool test4 = strlen(misspelled[3]) == strlen(expected[3]);
+    bool test5 = strlen(misspelled[4]) == strlen(expected[4]);
+    bool test6 = strlen(misspelled[5]) == strlen(expected[5]);
+    int len1 = strlen(misspelled[0]);
+    int len2 = strlen(expected[0]);
+    ck_assert_msg(test, "%d!=%d", len1, len2);
+    int len3 = strlen(misspelled[0]);
+    int len4 = strlen(expected[0]);
+    ck_assert_msg(test2, "%d!=%d", len3, len4);
+    int len5 = strlen(misspelled[1]);
+    int len6 = strlen(expected[1]);
+    ck_assert_msg(test3, "%d!=%d", len5, len6);
+    int len7 = strlen(misspelled[2]);
+    int len8 = strlen(expected[2]);
+    ck_assert_msg(test4, "%d!=%d", len7, len8);
+    int len9 = strlen(misspelled[3]);
+    int len10 = strlen(expected[4]);
+    ck_assert_msg(test5, "%d!=%d", len9, len10);
+    int len11 = strlen(misspelled[5]);
+    int len12 = strlen(expected[5]);
+    ck_assert_msg(test6, "%d!=%d", len11, len12);
+    ck_assert_msg(strcmp(misspelled[0], expected[0]) == 0);
+    ck_assert_msg(strcmp(misspelled[1], expected[1]) == 0);
+    ck_assert_msg(strcmp(misspelled[2], expected[2]) == 0);
+    ck_assert_msg(strcmp(misspelled[3], expected[3]) == 0);
+    ck_assert_msg(strcmp(misspelled[4], expected[4]) == 0);
+    ck_assert_msg(strcmp(misspelled[5], expected[5]) == 0);
+}
+END_TEST
+
 Suite *
 check_word_suite(void)
 {
@@ -129,6 +178,8 @@ check_word_suite(void)
     tcase_add_test(check_word_case, test_dictionary_normal);
     tcase_add_test(check_word_case, test_dictionary_boundary);
     tcase_add_test(check_word_case, test_check_word_punctuation);
+    tcase_add_test(check_word_case, test_check_words_boundary);
+    tcase_add_test(check_word_case, test_check_words_weird);
     suite_add_tcase(suite, check_word_case);
 
     return suite;

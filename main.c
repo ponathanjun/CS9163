@@ -10,7 +10,7 @@
 #include "dictionary.h"
 #include <stdlib.h>
 
-void clean(hashmap_t hashtable[])
+void clean(hashmap_t hashtable[], char* misspelled[], int num_misspelled)
 {
     // Clean hashtable
     for (int i = 0; i < HASH_SIZE; i++)
@@ -22,6 +22,12 @@ void clean(hashmap_t hashtable[])
             current = current->next;
             free(delete_node);
         }
+    }
+    
+    // Clean misspelled array
+    for (int i = 0; i < num_misspelled; i++)
+    {
+        free(misspelled[i]);
     }
 }
 
@@ -52,7 +58,7 @@ int main(int argc, char* argv[])
         fclose(fptr);
     
         // Clean
-        clean(hashtable);
+        clean(hashtable, misspelled, num_misspelled);
     }
     
     return 0;

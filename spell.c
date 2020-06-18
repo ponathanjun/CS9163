@@ -151,16 +151,16 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
     // While line in the file is not EOF
     while (getline(&line, &len, fp) != -1)
     {
+        // Account for new line character from each line
+        if (line[strlen(line)-1] == '\n')
+        {
+            line[strlen(line)-1] = '\0';
+        }
         // Split line on spaces
         word = strtok(line, " ");
         // For each word, remove punctuation from beg/end and run check_word
         while (word != NULL)
         {
-            // Account for new line character
-            if (word[strlen(word)-1] == '\n')
-            {
-                word[strlen(word)-1] = '\0';
-            }
             // Remove punctuation from the beginning
             while (ispunct(word[0]) != 0)
             {
@@ -171,15 +171,21 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
             {
                 word[strlen(word)-1] = '\0';
             }
+            char* current_word = strdup(word);
+            // Account for new line character from strdup
+            if (current_word[strlen(current_word)-1] == '\n')
+            {
+                current_word[strlen(current_word)-1] = '\0';
+            }
             // Check boundaries
-            if (strlen(word) <= LENGTH)
+            if (strlen(current_word) <= LENGTH)
             {
                 // Check if the word is all numbers
                 bool all_numbers = true;
-                for (int i = 0; i < strlen(word); i++)
+                for (int i = 0; i < strlen(current_word); i++)
                 {
                     // If character is not a digit, change flag and break
-                    if (isdigit(word[i]) == 0)
+                    if (isdigit(current_word[i]) == 0)
                     {
                         all_numbers = false;
                         break;
@@ -193,7 +199,7 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
                 }
                 else
                 {
-                    check = check_word(word, hashtable);
+                    check = check_word(current_word, hashtable);
                 }
                 // If word is not in the hashtable
                 if (check == false)
@@ -201,14 +207,23 @@ int check_words(FILE* fp, hashmap_t hashtable[], char * misspelled[])
                     // If misspelled, add word to the misspelled hashtable(account for boundary)
                     if (num_misspelled + 1 <= MAX_MISSPELLED)
                     {
-                        misspelled[num_misspelled] = word;
+                        misspelled[num_misspelled] = current_word;
                         num_misspelled++;
                     }
                     else
                     {
+                        free(current_word);
                         break;
                     }
                 }
+                else
+                {
+                    free(current_word);
+                }
+            }
+            else
+            {
+                free(current_word);
             }
             // Continue onto next word
             word = strtok(NULL, " ");
